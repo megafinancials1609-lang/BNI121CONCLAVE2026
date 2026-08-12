@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Chapter Coordinator Sheets — Regional Conclave 2026</title>
+<style>
+  :root{ --red:#d61f2b; --black:#0c0c0e; --gold:#f2c14e; --card:#17181c; --muted:#9aa0a6; }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:'Segoe UI',Arial,sans-serif; background:var(--black); color:#fff; }
+  header{ text-align:center; padding:28px 16px 16px; border-bottom:3px solid var(--red); }
+  header .brand{ font-size:13px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+  header h1{ margin:8px 0 2px; font-size:clamp(20px,4vw,32px); }
+  header h1 span{ color:var(--red); }
+  .wrap{ max-width:760px; margin:0 auto; padding:26px 18px 60px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:20px; }
+  .card{ background:var(--card); border:1px solid #2a2b30; border-radius:12px; padding:16px; text-align:center; text-decoration:none; color:#fff; transition:.15s; }
+  .card:hover{ border-color:var(--gold); transform:translateY(-2px); }
+  .card .n{ font-weight:800; font-size:16px; }
+  .card .sub{ color:var(--gold); font-size:12px; margin-top:4px; }
+  .back{ display:block; text-align:center; margin-top:24px; color:var(--gold); text-decoration:none; font-size:13px; }
+  footer{ text-align:center; padding:24px 10px; color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">BNI Raipur &amp; Rest of Chhattisgarh</div>
+  <h1>Regional <span>Conclave</span> 2026 — Chapter Coordinator Sheets</h1>
+</header>
+<div class="wrap">
+  <div class="grid" id="grid"></div>
+  <a class="back" href="dashboard.html">← Back to Live Dashboard</a>
+</div>
+<footer>22 August 2026 · Registration on First Come First Basis</footer>
+<script src="config.js"></script>
+<script>
+  const grid = document.getElementById('grid');
+  CONCLAVE_CONFIG.chapters.forEach(c=>{
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = c.slug + '.html';
+    a.innerHTML = `<div class="n">${c.name}</div><div class="sub">Open Sheet →</div>`;
+    grid.appendChild(a);
+  });
+</script>
+</body>
+</html>
