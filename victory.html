@@ -31,23 +31,12 @@
   .search{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid #33343a; background:#0f1013; color:#fff; font-size:14px; margin-bottom:14px; }
 
   .member{ background:var(--card); border:1px solid #2a2b30; border-radius:12px; margin-bottom:10px; overflow:hidden; }
-  .member .row{ display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; }
+  .member .row{ display:flex; align-items:center; gap:10px; padding:12px 14px; }
   .member .idx{ color:var(--muted); font-size:12px; width:22px; flex-shrink:0; }
   .member .name{ flex:1; font-size:14px; font-weight:600; }
   .member .status{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.5px; flex-shrink:0; border:none; cursor:pointer; }
   .member .status.Pending{ background:#33343a; color:var(--muted); }
   .member .status.Paid{ background:var(--green); color:#052b0c; }
-  .member .chev{ color:var(--muted); font-size:12px; transition:transform .2s; flex-shrink:0; }
-  .member.open .chev{ transform:rotate(90deg); }
-  .member .detail{ display:none; padding:0 14px 14px; border-top:1px solid #26272b; }
-  .member.open .detail{ display:block; }
-  .stepper-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; font-size:13px; }
-  .stepper-row .lbl{ color:var(--muted); }
-  .stepper{ display:flex; align-items:center; gap:10px; }
-  .stepper button{ width:26px; height:26px; border-radius:50%; border:1px solid #33343a; background:#0f1013; color:#fff; font-size:15px; cursor:pointer; }
-  .stepper button:disabled{ opacity:.35; cursor:default; }
-  .stepper .qty{ min-width:16px; text-align:center; font-weight:700; }
-  .member .subtotal{ text-align:right; padding-top:8px; border-top:1px solid #26272b; font-size:13px; color:var(--gold); font-weight:700; }
 
   .empty-state{ text-align:center; color:var(--muted); font-size:13px; padding:30px 10px; background:var(--card); border:1px dashed #33343a; border-radius:12px; }
 
@@ -69,7 +58,7 @@
   <div class="brand">BNI Raipur &amp; Rest of Chhattisgarh</div>
   <h1>Regional <span>Conclave</span> 2026</h1>
   <div class="chapter">Victory Chapter</div>
-  <div class="leads" id="leadsLine">Chapter Coordinator Sheet</div>
+  <div class="leads" id="leadsLine">Chapter Coordinator Sheet — Members Only</div>
 </header>
 
 <div class="wrap">
@@ -100,10 +89,9 @@
   const CHAPTER = { name: "Victory", slug: "victory" };
 
   // MEMBERS comes from members_victory.js — an array of strings (names).
-  // Populate that file with the real chapter roster; this page builds the
-  // Pending/Paid + family/kids tracking UI on top of it automatically.
+  // Members only for this event — no family/kids registration.
   const state = (typeof MEMBERS !== 'undefined' ? MEMBERS : []).map(name => ({
-    name, status: 'Pending', kids0_5: 0, kids5plus: 0
+    name, status: 'Pending'
   }));
 
   function activeTier(){
@@ -113,13 +101,7 @@
 
   function memberAmount(m){
     const tier = activeTier();
-    const base = m.status === 'Paid' ? tier.amount : 0; // only counts toward "collected" once marked Paid
-    return base; // kids/family amounts are shown per-row; total collected reflects the member's own registration
-  }
-
-  function rowAmount(m){
-    const tier = activeTier();
-    return tier.amount + (m.kids5plus * tier.amount); // member + paid kids (5+); kids 0-5 stay free
+    return m.status === 'Paid' ? tier.amount : 0;
   }
 
   function renderAlert(){
@@ -138,7 +120,7 @@
   function renderSummary(){
     const paid = state.filter(m => m.status === 'Paid').length;
     const pending = state.length - paid;
-    const total = state.reduce((sum,m) => sum + (m.status==='Paid' ? rowAmount(m) : 0), 0);
+    const total = state.reduce((sum,m) => sum + memberAmount(m), 0);
     document.getElementById('sumPaid').textContent = paid;
     document.getElementById('sumPending').textContent = pending;
     document.getElementById('sumAmount').textContent = '₹' + total.toLocaleString('en-IN');
@@ -154,34 +136,13 @@
     const q = (filter||'').toLowerCase();
     state.forEach((m,i) => {
       if(q && m.name.toLowerCase().indexOf(q) === -1) return;
-      const tier = activeTier();
       const div = document.createElement('div');
       div.className = 'member';
       div.innerHTML = `
-        <div class="row" data-idx="${i}">
+        <div class="row">
           <div class="idx">${i+1}</div>
           <div class="name">${m.name}</div>
           <button class="status ${m.status}" data-action="status" data-idx="${i}">${m.status}</button>
-          <div class="chev">▶</div>
-        </div>
-        <div class="detail">
-          <div class="stepper-row">
-            <div class="lbl">Kids 0–5 (FREE)</div>
-            <div class="stepper">
-              <button data-action="dec0" data-idx="${i}" ${m.kids0_5<=0?'disabled':''}>−</button>
-              <div class="qty">${m.kids0_5}</div>
-              <button data-action="inc0" data-idx="${i}">+</button>
-            </div>
-          </div>
-          <div class="stepper-row">
-            <div class="lbl">Kids 5+ (₹${tier.amount} each)</div>
-            <div class="stepper">
-              <button data-action="dec5" data-idx="${i}" ${m.kids5plus<=0?'disabled':''}>−</button>
-              <div class="qty">${m.kids5plus}</div>
-              <button data-action="inc5" data-idx="${i}">+</button>
-            </div>
-          </div>
-          <div class="subtotal">Row total: ₹${rowAmount(m).toLocaleString('en-IN')}</div>
         </div>
       `;
       list.appendChild(div);
@@ -197,23 +158,15 @@
 
   document.getElementById('memberList').addEventListener('click', function(e){
     const btn = e.target.closest('[data-action]');
-    const rowEl = e.target.closest('.member');
     if(btn){
       const idx = Number(btn.dataset.idx);
       const action = btn.dataset.action;
       if(action === 'status'){
         state[idx].status = state[idx].status === 'Pending' ? 'Paid' : 'Pending';
-      } else if(action === 'inc0'){ state[idx].kids0_5++; }
-      else if(action === 'dec0'){ state[idx].kids0_5 = Math.max(0, state[idx].kids0_5-1); }
-      else if(action === 'inc5'){ state[idx].kids5plus++; }
-      else if(action === 'dec5'){ state[idx].kids5plus = Math.max(0, state[idx].kids5plus-1); }
+      }
       renderList(document.getElementById('searchBox').value);
       renderSummary();
       e.stopPropagation();
-      return;
-    }
-    if(rowEl){
-      rowEl.classList.toggle('open');
     }
   });
 
@@ -236,8 +189,7 @@
       tier: tier.label,
       timestamp: new Date().toISOString(),
       members: state.map(m => ({
-        name: m.name, status: m.status, kids0_5: m.kids0_5, kids5plus: m.kids5plus,
-        amount: m.status === 'Paid' ? rowAmount(m) : 0
+        name: m.name, status: m.status, amount: memberAmount(m)
       }))
     };
     fetch(url, {
@@ -254,9 +206,8 @@
   });
 
   document.getElementById('exportBtn').addEventListener('click', function(){
-    const tier = activeTier();
-    const rows = [['#','Name','Status','Kids 0-5','Kids 5+','Amount']];
-    state.forEach((m,i) => rows.push([i+1, m.name, m.status, m.kids0_5, m.kids5plus, m.status==='Paid' ? rowAmount(m) : 0]));
+    const rows = [['#','Name','Status','Amount']];
+    state.forEach((m,i) => rows.push([i+1, m.name, m.status, memberAmount(m)]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
@@ -276,8 +227,6 @@
         const m = state.find(x => x.name.trim().toLowerCase() === String(saved.name).trim().toLowerCase());
         if(m){
           m.status = saved.status === 'Paid' ? 'Paid' : 'Pending';
-          m.kids0_5 = Number(saved.kids0_5) || 0;
-          m.kids5plus = Number(saved.kids5plus) || 0;
         }
       });
       renderList(document.getElementById('searchBox').value);

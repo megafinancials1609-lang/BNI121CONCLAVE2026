@@ -5,37 +5,36 @@
  * matching how the chapter coordinator pages work — each coordinator
  * ticks members Paid/Pending and syncs the whole chapter list at once.
  *
- * Sheet columns: Chapter | Name | Status | Kids 0-5 | Kids 5+ | Amount | Tier | Last Synced
+ * Members only for this event — no family/kids registration.
  *
- * SETUP (one-time, ~5 minutes):
- * 1. Open the Google Sheet: "BNI Regional Conclave 2026 - Registration Data"
- *    https://docs.google.com/spreadsheets/d/1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4/edit
- * 2. Extensions > Apps Script.
- * 3. Delete any placeholder code and paste this entire file in.
- * 4. Deploy > New deployment > type "Web app".
- *    - Execute as: Me
- *    - Who has access: Anyone
- * 5. Deploy, authorize when prompted, copy the Web app URL (ends in /exec).
- * 6. Paste that URL into config.js as CONCLAVE_CONFIG.appsScriptUrl.
+ * Sheet columns: Chapter | Name | Status | Amount | Tier | Last Synced
+ *
+ * Standalone script — reads/writes the Sheet by ID, does not need to be
+ * launched from the Sheet's Extensions menu.
  */
 
+const SHEET_ID = "1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4";
 const SHEET_NAME = "Sheet1"; // change if your tab is named differently
-const HEADER = ["Chapter", "Name", "Status", "Kids 0-5", "Kids 5+", "Amount", "Tier", "Last Synced"];
+const HEADER = ["Chapter", "Name", "Status", "Amount", "Tier", "Last Synced"];
 
 function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) sheet = ss.getSheets()[0];
   return sheet;
 }
 
 function ensureHeader(sheet) {
+  const firstRow = sheet.getRange(1, 1, 1, HEADER.length).getValues()[0];
+  const matches = HEADER.every(function (h, i) { return String(firstRow[i] || "").trim() === h; });
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADER);
+  } else if (!matches) {
+    sheet.getRange(1, 1, 1, HEADER.length).setValues([HEADER]);
   }
 }
 
-// Reads the whole sheet into memory as {chapter|name -> {rowNumber, ...}}
+// Reads the whole sheet into memory as {chapter||name -> {rowNumber, ...}}
 function readAll(sheet) {
   const lastRow = sheet.getLastRow();
   const map = {};
@@ -43,7 +42,7 @@ function readAll(sheet) {
     const rows = sheet.getRange(2, 1, lastRow - 1, HEADER.length).getValues();
     rows.forEach(function (r, i) {
       const key = String(r[0]).trim() + "||" + String(r[1]).trim();
-      map[key] = { rowNumber: i + 2, chapter: r[0], name: r[1], status: r[2], kids0_5: r[3], kids5plus: r[4], amount: r[5], tier: r[6], lastSynced: r[7] };
+      map[key] = { rowNumber: i + 2, chapter: r[0], name: r[1], status: r[2], amount: r[3], tier: r[4], lastSynced: r[5] };
     });
   }
   return map;
@@ -72,7 +71,7 @@ function doPost(e) {
 
   data.members.forEach(function (m) {
     const key = String(data.chapter).trim() + "||" + String(m.name).trim();
-    const rowValues = [data.chapter, m.name, m.status || "Pending", m.kids0_5 || 0, m.kids5plus || 0, m.amount || 0, data.tier || "", now];
+    const rowValues = [data.chapter, m.name, m.status || "Pending", m.amount || 0, data.tier || "", now];
     if (existing[key]) {
       sheet.getRange(existing[key].rowNumber, 1, 1, HEADER.length).setValues([rowValues]);
     } else {
@@ -112,7 +111,7 @@ function buildChapter(chapterName) {
     const rows = sheet.getRange(2, 1, lastRow - 1, HEADER.length).getValues();
     rows.forEach(function (r) {
       if (String(r[0]).trim() === String(chapterName).trim()) {
-        members.push({ name: r[1], status: r[2], kids0_5: r[3], kids5plus: r[4], amount: r[5] });
+        members.push({ name: r[1], status: r[2], amount: r[3] });
       }
     });
   }
@@ -131,7 +130,7 @@ function buildSummary() {
     rows.forEach(function (r) {
       const chapter = String(r[0] || "").trim();
       const status = String(r[2] || "");
-      const amount = Number(r[5]) || 0;
+      const amount = Number(r[3]) || 0;
       if (!chapter) return;
       if (!chapterTotals[chapter]) chapterTotals[chapter] = { count: 0, amount: 0 };
       if (status === "Paid") {

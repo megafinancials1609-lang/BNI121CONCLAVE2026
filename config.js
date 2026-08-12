@@ -16,7 +16,7 @@ const CONCLAVE_CONFIG = {
 
   // Google Sheet backend (Apps Script Web App).
   // PASTE the deployed /exec URL here once you've published the script.
-  appsScriptUrl: "PASTE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzpwMjzUuOjEJOyogFtwyfK03x6LZXRY3bzzgQg9muNrtu5uFXPLh7qY9QfiCfBvR8/exec",
 
   // Google Sheet this data is stored in (for reference / manual checks)
   googleSheetId: "1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4",
