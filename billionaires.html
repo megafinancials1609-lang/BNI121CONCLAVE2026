@@ -95,6 +95,10 @@
   }));
 
   function activeTier(){
+    if(CONCLAVE_CONFIG.forceTierKey){
+      const forced = CONCLAVE_CONFIG.pricing.find(t => t.key === CONCLAVE_CONFIG.forceTierKey);
+      if(forced) return forced;
+    }
     const now = new Date();
     return CONCLAVE_CONFIG.pricing.find(t => !t.until || now <= new Date(t.until)) || CONCLAVE_CONFIG.pricing[CONCLAVE_CONFIG.pricing.length-1];
   }

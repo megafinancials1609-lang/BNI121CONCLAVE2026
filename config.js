@@ -22,6 +22,14 @@ const CONCLAVE_CONFIG = {
   googleSheetId: "1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4",
   googleSheetUrl: "https://docs.google.com/spreadsheets/d/1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4/edit",
 
+  // Manual pricing override. Leave as null and pricing switches
+  // automatically by date (Early Bird -> Late Bird -> Spot) using the
+  // `until` dates below. To force the ₹900 Late Bird rate ON right now,
+  // regardless of date, set this to "late" (matches a `key` below) —
+  // every chapter page and the dashboard will pick it up immediately.
+  // Set back to null to resume automatic date-based switching.
+  forceTierKey: null,
+
   // Pricing tiers, in order. `until` is inclusive end-of-day IST.
   pricing: [
     { key: "early",  label: "Early Bird",       amount: 800,  until: "2026-08-14T23:59:59+05:30" },
@@ -56,8 +64,13 @@ const CONCLAVE_CONFIG = {
   ]
 };
 
-// Returns the currently active pricing tier object based on IST time-now.
+// Returns the currently active pricing tier object. Honors a manual
+// forceTierKey override first; otherwise picks by IST time-now.
 function getCurrentTier() {
+  if (CONCLAVE_CONFIG.forceTierKey) {
+    const forced = CONCLAVE_CONFIG.pricing.find(function (t) { return t.key === CONCLAVE_CONFIG.forceTierKey; });
+    if (forced) return forced;
+  }
   const now = new Date();
   for (const tier of CONCLAVE_CONFIG.pricing) {
     if (!tier.until || now <= new Date(tier.until)) return tier;

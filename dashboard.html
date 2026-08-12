@@ -159,13 +159,18 @@
   setInterval(updateCountdown, 1000);
 
   // ---------- Pricing tiers ----------
-  function renderTiers(){
+  function currentTierKey(){
+    if(CONCLAVE_CONFIG.forceTierKey) return CONCLAVE_CONFIG.forceTierKey;
     const now = new Date();
+    const found = CONCLAVE_CONFIG.pricing.find(p=>!p.until || now<=new Date(p.until));
+    return found ? found.key : CONCLAVE_CONFIG.pricing[CONCLAVE_CONFIG.pricing.length-1].key;
+  }
+  function renderTiers(){
+    const activeKey = currentTierKey();
     const box = document.getElementById('tiers');
     box.innerHTML = '';
     CONCLAVE_CONFIG.pricing.forEach(t=>{
-      const isActive = (!t.until || now <= new Date(t.until)) &&
-                        (CONCLAVE_CONFIG.pricing.filter(p=>!p.until || now<=new Date(p.until))[0].key === t.key);
+      const isActive = t.key === activeKey;
       const div = document.createElement('div');
       div.className = 'tier' + (isActive ? ' active' : '');
       div.innerHTML = `${isActive ? '<div class="badge">ACTIVE NOW</div>' : ''}
