@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interregion Registration — Regional Conclave 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#d61f2b; --red-dim:#a5171f; --black:#0a0a0c; --gold:#f2c14e; --gold-dim:#c9992f;
+    --card:#17181c; --card2:#1c1d22; --muted:#9aa0a6; --line:#2a2b30; --green:#3ecf7e;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Inter',-apple-system,'Segoe UI',Arial,sans-serif;
+    background:var(--black); color:#fff; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:'Poppins','Inter',sans-serif; }
+
+  header{
+    position:relative; padding:40px 20px 48px; text-align:center; overflow:hidden;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(214,31,43,0.35), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 90% 0%, rgba(242,193,78,0.20), transparent 55%),
+      linear-gradient(180deg, #0a0a0c 0%, #0d0d10 100%);
+    border-bottom:1px solid var(--line);
+  }
+  header .brand{ font-size:13px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; font-weight:600; }
+  header h1{ margin:10px 0 6px; font-size:clamp(24px,4.2vw,38px); font-weight:800; letter-spacing:-0.5px; }
+  header h1 .grad{
+    background:linear-gradient(90deg, var(--red) 0%, var(--gold) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  header .tagline{ color:var(--muted); font-size:14px; margin-top:4px; }
+  header .back{ display:inline-block; margin-top:14px; color:var(--gold); font-size:13px; font-weight:600; text-decoration:none; }
+  header .back:hover{ text-decoration:underline; }
+
+  .wrap{ max-width:760px; margin:0 auto; padding:30px 16px 60px; }
+
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:30px; }
+  .stat{ background:linear-gradient(160deg, var(--card2), var(--card)); border:1px solid var(--line); border-radius:16px; padding:18px; text-align:center; box-shadow:var(--shadow); }
+  .stat .val{ font-size:26px; font-weight:800; font-family:'Poppins',sans-serif; }
+  .stat .val.gold{ color:var(--gold); }
+  .stat .val.red{ color:var(--red); }
+  .stat .lbl{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-top:4px; font-weight:600; }
+
+  h2.section{ font-size:16px; text-transform:uppercase; letter-spacing:1px; font-weight:700; display:flex; align-items:center; gap:10px; margin:30px 0 14px; }
+  h2.section::before{ content:''; width:5px; height:18px; border-radius:3px; background:linear-gradient(180deg,var(--red),var(--gold)); display:inline-block; }
+
+  .form-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:var(--shadow); }
+  .form-row{ display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:12px; }
+  @media (min-width:560px){ .form-row.two{ grid-template-columns:1fr 1fr; } }
+  label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+  input[type=text], input[type=number]{
+    width:100%; background:#0f0f12; border:1px solid var(--line); border-radius:10px; color:#fff;
+    padding:11px 12px; font-size:14.5px; font-family:inherit;
+  }
+  input:focus{ outline:none; border-color:var(--gold); }
+  .addBtn{
+    width:100%; background:linear-gradient(90deg,var(--red-dim),var(--red)); color:#fff; border:none;
+    border-radius:10px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; margin-top:4px;
+    font-family:'Poppins',sans-serif; transition:filter .15s ease;
+  }
+  .addBtn:hover{ filter:brightness(1.1); }
+  .addBtn:disabled{ opacity:.6; cursor:default; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:#1c1d22; border:1px solid var(--line); color:#fff; padding:12px 20px; border-radius:12px;
+    font-size:13.5px; font-weight:600; box-shadow:var(--shadow); transition:all .25s ease; pointer-events:none; z-index:20;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  table{ width:100%; border-collapse:collapse; background:var(--card); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+  thead th{ background:#1f2024; text-align:left; padding:11px 12px; font-size:11.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:700; }
+  tbody td{ padding:11px 12px; border-top:1px solid #24252a; font-size:13.5px; }
+  tbody tr:hover{ background:#1c1d21; }
+
+  .status-note{ text-align:center; color:var(--muted); font-size:12px; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .status-note .liveDot{ width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(62,207,126,.55);} 70%{box-shadow:0 0 0 9px rgba(62,207,126,0);} 100%{box-shadow:0 0 0 0 rgba(62,207,126,0);} }
+
+  footer{ text-align:center; padding:30px 10px 40px; color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); margin-top:20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">INTERREGION REGISTRATION</div>
+  <h1>Interregion <span class="grad">Tracker</span></h1>
+  <div class="tagline">Coordinator: Vinod Kumar Jain — add each registration as it comes in</div>
+  <a class="back" href="dashboard.html">&larr; Back to Live Dashboard</a>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><div class="val gold" id="statTotal">--</div><div class="lbl">Registered</div></div>
+    <div class="stat"><div class="val red" id="statAmount">--</div><div class="lbl">Collected</div></div>
+  </div>
+
+  <h2 class="section">Add Registration</h2>
+  <div class="form-card">
+    <div class="form-row two">
+      <div>
+        <label for="fName">Member Name</label>
+        <input type="text" id="fName" placeholder="e.g. Rakesh Verma">
+      </div>
+      <div>
+        <label for="fRegion">Region</label>
+        <input type="text" id="fRegion" placeholder="e.g. Bhopal Region">
+      </div>
+    </div>
+    <div class="form-row two">
+      <div>
+        <label for="fAmount">Amount Collected (₹)</label>
+        <input type="number" id="fAmount" placeholder="800">
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <button class="addBtn" id="addBtn" type="button">+ Add Registration</button>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section">Registrations So Far</h2>
+  <table>
+    <thead><tr><th>#</th><th>Name</th><th>Region</th><th>Amount</th></tr></thead>
+    <tbody id="entriesBody">
+      <tr><td colspan="4" style="text-align:center;color:#9aa0a6;">Loading…</td></tr>
+    </tbody>
+  </table>
+  <div class="status-note" id="liveNote">Connecting to live sheet…</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  BNI Raipur &amp; Rest of Chhattisgarh Regional Conclave · Interregion Registration Tracker
+</footer>
+
+<script src="config.js"></script>
+<script>
+  const CHAPTER_KEY = 'Interregion';
+  const SEP = ' — '; // used to encode "Name — Region" into the shared Name column
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function activeTier(){
+    if(CONCLAVE_CONFIG.forceTierKey){
+      const f = CONCLAVE_CONFIG.pricing.find(p=>p.key===CONCLAVE_CONFIG.forceTierKey);
+      if(f) return f;
+    }
+    const now = new Date();
+    return CONCLAVE_CONFIG.pricing.find(p=>!p.until || now<=new Date(p.until)) || CONCLAVE_CONFIG.pricing[CONCLAVE_CONFIG.pricing.length-1];
+  }
+  document.getElementById('fAmount').value = activeTier().amount;
+
+  function renderEntries(members){
+    const body = document.getElementById('entriesBody');
+    body.innerHTML = '';
+    let totalCount = 0, totalAmount = 0;
+    members.forEach((m, i) => {
+      const raw = String(m.name || '');
+      const idx = raw.lastIndexOf(SEP);
+      const name = idx > -1 ? raw.slice(0, idx) : raw;
+      const region = idx > -1 ? raw.slice(idx + SEP.length) : '—';
+      const amount = Number(m.amount) || 0;
+      totalCount++; totalAmount += amount;
+
+      const tr = document.createElement('tr');
+      const tdN = document.createElement('td'); tdN.textContent = String(i+1);
+      const tdName = document.createElement('td'); tdName.textContent = name;
+      const tdRegion = document.createElement('td'); tdRegion.textContent = region;
+      const tdAmt = document.createElement('td'); tdAmt.textContent = '₹' + amount.toLocaleString('en-IN');
+      tr.appendChild(tdN); tr.appendChild(tdName); tr.appendChild(tdRegion); tr.appendChild(tdAmt);
+      body.appendChild(tr);
+    });
+    if(members.length === 0){
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9aa0a6;">No registrations added yet.</td></tr>';
+    }
+    document.getElementById('statTotal').textContent = totalCount;
+    document.getElementById('statAmount').textContent = '₹' + totalAmount.toLocaleString('en-IN');
+  }
+
+  function loadEntries(){
+    const url = CONCLAVE_CONFIG.appsScriptUrl;
+    const note = document.getElementById('liveNote');
+    if(!url || url.indexOf('PASTE_APPS_SCRIPT') !== -1){
+      note.textContent = 'Backend not connected yet.';
+      return;
+    }
+    const cbName = 'interCb_' + Date.now();
+    window[cbName] = function(data){
+      renderEntries((data.members || []).slice().reverse());
+      note.innerHTML = '';
+      const dot = document.createElement('span'); dot.className = 'liveDot';
+      note.appendChild(dot);
+      note.appendChild(document.createTextNode('Live — refreshes every 30 seconds.'));
+      delete window[cbName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = url + '?action=chapter&chapter=' + encodeURIComponent(CHAPTER_KEY) + '&callback=' + cbName;
+    script.onerror = function(){ note.textContent = 'Could not reach the live sheet — retrying in 30 seconds.'; };
+    document.body.appendChild(script);
+  }
+
+  document.getElementById('addBtn').addEventListener('click', function(){
+    const url = CONCLAVE_CONFIG.appsScriptUrl;
+    if(!url || url.indexOf('PASTE_APPS_SCRIPT') !== -1){ toast('Backend not connected yet'); return; }
+
+    const name = document.getElementById('fName').value.trim();
+    const region = document.getElementById('fRegion').value.trim();
+    const amount = Number(document.getElementById('fAmount').value) || 0;
+
+    if(!name){ toast('Enter the member’s name'); return; }
+    if(!region){ toast('Enter the region'); return; }
+
+    const btn = this;
+    btn.disabled = true; btn.textContent = 'Adding…';
+
+    const payload = {
+      action: 'sync',
+      chapter: CHAPTER_KEY,
+      tier: region,
+      timestamp: new Date().toISOString(),
+      members: [{ name: name + SEP + region, status: 'Paid', amount: amount }]
+    };
+
+    fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(){
+      toast('✓ Registration added');
+      document.getElementById('fName').value = '';
+      document.getElementById('fRegion').value = '';
+      document.getElementById('fAmount').value = activeTier().amount;
+      btn.disabled = false; btn.textContent = '+ Add Registration';
+      setTimeout(loadEntries, 900);
+    }).catch(function(){
+      toast('Failed to add — try again');
+      btn.disabled = false; btn.textContent = '+ Add Registration';
+    });
+  });
+
+  loadEntries();
+  setInterval(loadEntries, 30000);
+</script>
+</body>
+</html>

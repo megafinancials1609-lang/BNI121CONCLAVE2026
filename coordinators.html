@@ -142,6 +142,23 @@
   <h2 class="section">Chapter-wise Progress <span class="sub">— live from the registration sheet</span></h2>
   <div class="teams" id="teamsWrap"></div>
 
+  <h2 class="section">Interregion <span class="sub">— coordinated by Vinod Kumar Jain</span></h2>
+  <div class="team interregion" style="max-width:100%;">
+    <div class="team-head" style="background:linear-gradient(160deg,#1a1c10,#14150e);">
+      <div class="tname" style="color:#d9c46a;">Vinod Kumar Jain</div>
+      <div class="ttotal">
+        <div class="n" id="interTotal">--</div><div class="l">Registered</div>
+      </div>
+    </div>
+    <div class="chapter-row" style="justify-content:space-between;">
+      <div class="cinfo"><div class="ccoord">Total collected</div></div>
+      <div class="ccount" id="interAmount" style="font-size:16px;">--</div>
+    </div>
+    <div class="chapter-row" style="justify-content:center;border-top:1px solid #222327;">
+      <a href="interregion.html" style="color:var(--gold);font-size:13px;font-weight:700;text-decoration:none;">Open Interregion entry page &rarr;</a>
+    </div>
+  </div>
+
   <div class="status-note" id="liveNote">Connecting to live registration sheet…</div>
 
 </div>
@@ -283,8 +300,30 @@
     document.body.appendChild(script);
   }
 
+  function loadInterregion(){
+    const url = CONCLAVE_CONFIG.appsScriptUrl;
+    if(!url || url.indexOf('PASTE_APPS_SCRIPT') !== -1) return;
+    const cbName = 'interSumCb_' + Date.now();
+    window[cbName] = function(data){
+      const members = data.members || [];
+      let amount = 0;
+      members.forEach(m => { amount += Number(m.amount) || 0; });
+      const totalEl = document.getElementById('interTotal');
+      const amtEl = document.getElementById('interAmount');
+      if(totalEl) totalEl.textContent = members.length;
+      if(amtEl) amtEl.textContent = '₹' + amount.toLocaleString('en-IN');
+      delete window[cbName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = url + '?action=chapter&chapter=Interregion&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+
   loadProgress();
+  loadInterregion();
   setInterval(loadProgress, 30000);
+  setInterval(loadInterregion, 30000);
 </script>
 </body>
 </html>
