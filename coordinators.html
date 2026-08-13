@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>121 Conclave — Coordinator Progress Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#d61f2b; --red-dim:#a5171f; --black:#0a0a0c; --gold:#f2c14e; --gold-dim:#c9992f;
+    --card:#17181c; --card2:#1c1d22; --muted:#9aa0a6; --line:#2a2b30; --green:#3ecf7e;
+    --blue:#4ea1ff; --blue-dim:#2f6fb5;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; font-family:'Inter',-apple-system,'Segoe UI',Arial,sans-serif;
+    background:var(--black); color:#fff; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:'Poppins','Inter',sans-serif; }
+
+  header{
+    position:relative; padding:48px 20px 56px; text-align:center; overflow:hidden;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(214,31,43,0.35), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 90% 0%, rgba(242,193,78,0.20), transparent 55%),
+      radial-gradient(ellipse 1200px 700px at 50% 120%, rgba(214,31,43,0.18), transparent 60%),
+      linear-gradient(180deg, #0a0a0c 0%, #0d0d10 100%);
+    border-bottom:1px solid var(--line);
+  }
+  header::before{
+    content:''; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image: radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 40%, transparent 90%);
+  }
+  header .inner{ position:relative; z-index:1; }
+  .live-chip{
+    display:inline-flex; align-items:center; gap:7px; background:rgba(62,207,126,0.12);
+    border:1px solid rgba(62,207,126,0.4); color:var(--green); font-size:11px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; padding:5px 14px 5px 10px; border-radius:999px;
+    margin-bottom:18px;
+  }
+  .live-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(62,207,126,.55);} 70%{box-shadow:0 0 0 9px rgba(62,207,126,0);} 100%{box-shadow:0 0 0 0 rgba(62,207,126,0);} }
+  header .brand{ font-size:13px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; font-weight:600; }
+  header h1{ margin:10px 0 8px; font-size:clamp(26px,4.6vw,44px); font-weight:800; letter-spacing:-0.5px; line-height:1.1; }
+  header h1 .grad{
+    background:linear-gradient(90deg, var(--red) 0%, var(--gold) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  header .tagline{ color:var(--muted); font-size:14.5px; margin-top:6px; }
+  header .back{ display:inline-block; margin-top:16px; color:var(--gold); font-size:13px; font-weight:600; text-decoration:none; }
+  header .back:hover{ text-decoration:underline; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:34px 16px 60px; }
+
+  h2.section{
+    font-size:18px; text-transform:uppercase; letter-spacing:1px; color:#fff; font-weight:700;
+    display:flex; align-items:center; gap:10px; margin:36px 0 16px;
+  }
+  h2.section::before{ content:''; width:5px; height:20px; border-radius:3px; background:linear-gradient(180deg,var(--red),var(--gold)); display:inline-block; }
+  h2.section .sub{ font-size:12px; color:var(--muted); text-transform:none; letter-spacing:0; font-weight:500; margin-left:2px; }
+
+  /* Head-to-head */
+  .h2h{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:var(--shadow); }
+  .h2h-row{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .h2h-row:last-child{ margin-bottom:0; }
+  .h2h-row .who{ width:150px; flex-shrink:0; font-size:13.5px; font-weight:700; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .h2h-row .track{ flex:1; background:#1f2024; border-radius:6px; height:26px; position:relative; }
+  .h2h-row .fill{ height:26px; border-radius:0 5px 5px 0; display:flex; align-items:center; transition:width .7s cubic-bezier(.22,1,.36,1); }
+  .h2h-row.bhavesh .fill{ background:linear-gradient(90deg,var(--red-dim),var(--red)); }
+  .h2h-row.sunil .fill{ background:linear-gradient(90deg,var(--blue-dim),var(--blue)); }
+  .h2h-row .value{ font-size:12.5px; font-weight:700; padding:0 10px; color:#fff; white-space:nowrap; }
+
+  /* Team panels */
+  .teams{ display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:20px; }
+  .team{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); }
+  .team-head{ padding:18px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
+  .team.bhavesh .team-head{ background:linear-gradient(160deg,#241414,#1a1010); }
+  .team.sunil .team-head{ background:linear-gradient(160deg,#101c24,#0f171d); }
+  .team-head .tname{ font-size:15.5px; font-weight:800; }
+  .team.bhavesh .team-head .tname{ color:#ff8a90; }
+  .team.sunil .team-head .tname{ color:#8ac9ff; }
+  .team-head .ttotal{ text-align:right; }
+  .team-head .ttotal .n{ font-size:22px; font-weight:800; font-family:'Poppins',sans-serif; }
+  .team-head .ttotal .l{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+
+  .chapter-row{ display:flex; align-items:center; gap:12px; padding:13px 20px; border-top:1px solid #222327; }
+  .chapter-row:first-of-type{ border-top:none; }
+  .chapter-row .cinfo{ flex:1; min-width:0; }
+  .chapter-row .cname{ font-size:14px; font-weight:700; }
+  .chapter-row .ccoord{ font-size:12px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .chapter-row .ccoord a{ color:var(--muted); text-decoration:none; }
+  .chapter-row .ccoord a:hover{ color:var(--gold); text-decoration:underline; }
+  .chapter-row .cprog{ width:120px; flex-shrink:0; }
+  .chapter-row .cprog .bar{ height:8px; border-radius:4px; background:#1f2024; overflow:hidden; }
+  .chapter-row .cprog .bar .f{ height:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold)); border-radius:4px; transition:width .6s ease; }
+  .chapter-row .ccount{ width:64px; flex-shrink:0; text-align:right; font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .chapter-row .ccount .amt{ display:block; font-size:11px; color:var(--muted); font-weight:600; }
+
+  .status-note{ text-align:center; color:var(--muted); font-size:12px; margin-top:20px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .status-note .liveDot{ width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
+
+  footer{ text-align:center; padding:36px 10px 40px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); margin-top:20px; }
+
+  @media (max-width:480px){
+    .chapter-row .cprog{ display:none; }
+    .h2h-row .who{ width:96px; font-size:12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="live-chip"><span class="dot"></span> Live Coordinator Tracker</div>
+    <div class="brand">121 CONCLAVE</div>
+    <h1>Coordinator <span class="grad">Progress</span> Tracker</h1>
+    <div class="tagline">Bhavesh Nichlani &amp; Sunil Jagyasi — 10 chapters each</div>
+    <a class="back" href="dashboard.html">&larr; Back to Live Dashboard</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2 class="section">Team Race <span class="sub">— total paid registrations, head to head</span></h2>
+  <div class="h2h">
+    <div class="h2h-row bhavesh">
+      <div class="who">Bhavesh Nichlani</div>
+      <div class="track"><div class="fill" id="h2h-bhavesh" style="width:0%"><span class="value" id="h2h-bhavesh-val">0</span></div></div>
+    </div>
+    <div class="h2h-row sunil">
+      <div class="who">Sunil Jagyasi</div>
+      <div class="track"><div class="fill" id="h2h-sunil" style="width:0%"><span class="value" id="h2h-sunil-val">0</span></div></div>
+    </div>
+  </div>
+
+  <h2 class="section">Chapter-wise Progress <span class="sub">— live from the registration sheet</span></h2>
+  <div class="teams" id="teamsWrap"></div>
+
+  <div class="status-note" id="liveNote">Connecting to live registration sheet…</div>
+
+</div>
+
+<footer>
+  BNI Raipur &amp; Rest of Chhattisgarh Regional Conclave · 121 Conclave Coordinator Tracker<br>
+</footer>
+
+<script src="config.js"></script>
+<script>
+  const TEAMS = [
+    {
+      key: 'bhavesh', name: 'Bhavesh Nichlani',
+      chapters: [
+        { slug:'alpha',      name:'Alpha',        coordinator:'Rajnayan Haripriya',     phone:'7828811005' },
+        { slug:'amigos',     name:'Amigos',       coordinator:'Neeraj Agrawal (LED)',   phone:'9826849000' },
+        { slug:'barons',     name:'Barons',       coordinator:'Swapna Shrirangam',      phone:'8349847474' },
+        { slug:'champions',  name:'Champions',    coordinator:'Amit Mahansaria',        phone:'9230008276' },
+        { slug:'diamond',    name:'Diamond',      coordinator:'Ashish Somani',          phone:'9993376888' },
+        { slug:'experts',    name:'Experts',      coordinator:'Bhaskar Dutt',           phone:'7999950973' },
+        { slug:'futurz',     name:'Futurz',       coordinator:'Sandeep Singh',          phone:'8358884000' },
+        { slug:'gladiators', name:'Gladiators',   coordinator:'Details Pending',        phone:'' },
+        { slug:'icons',      name:'Icons',        coordinator:'Rohit Agrawal',          phone:'9109767991' },
+        { slug:'jupiter',    name:'Jupiter',      coordinator:'Venu Gopal Tamrakar',    phone:'7000670704' }
+      ]
+    },
+    {
+      key: 'sunil', name: 'Sunil Jagyasi',
+      chapters: [
+        { slug:'billionaires', name:'Billionaires', coordinator:'Rinkle Agrawal',         phone:'9644142222' },
+        { slug:'crystals',     name:'Crystal',       coordinator:'Aman Agrawal',           phone:'9111995033' },
+        { slug:'dynamic',      name:'Dynamic',       coordinator:'Sandesh Garg',           phone:'7879246462' },
+        { slug:'hallmark',     name:'Hallmark',      coordinator:'Anshul Agrawal',         phone:'9009200911' },
+        { slug:'karma',        name:'Karma',         coordinator:'Dr. Munira Zar',         phone:'9833005009' },
+        { slug:'legends',      name:'Legends',       coordinator:'Anshuman Sharma',        phone:'7999939591' },
+        { slug:'mantra',       name:'Mantra',        coordinator:'Naveen Dadsena',         phone:'9300222410' },
+        { slug:'phoenix',      name:'Phoenix',       coordinator:'Dishi Chhugani',         phone:'9109158885' },
+        { slug:'tycoons',      name:'Tycoons',       coordinator:'Ravinder Ubeja',         phone:'9039627355' },
+        { slug:'victory',      name:'Victory',       coordinator:'Karan Kumar Santanai',   phone:'9097033665' }
+      ]
+    }
+  ];
+
+  function fmtPhone(p){
+    if(!p) return '';
+    return p.length===10 ? p.slice(0,5)+' '+p.slice(5) : p;
+  }
+
+  function renderSkeleton(){
+    const wrap = document.getElementById('teamsWrap');
+    wrap.innerHTML = '';
+    TEAMS.forEach(team=>{
+      const div = document.createElement('div');
+      div.className = 'team ' + team.key;
+      const head = document.createElement('div');
+      head.className = 'team-head';
+      head.innerHTML = '<div class="tname">' + team.name + '</div>' +
+        '<div class="ttotal"><div class="n" id="total-'+team.key+'">--</div><div class="l">Registered</div></div>';
+      div.appendChild(head);
+      team.chapters.forEach(ch=>{
+        const row = document.createElement('div');
+        row.className = 'chapter-row';
+        row.id = 'row-' + ch.slug;
+        const coordHtml = ch.phone
+          ? '<a href="tel:+91'+ch.phone+'">'+ch.coordinator+' — '+fmtPhone(ch.phone)+'</a>'
+          : ch.coordinator;
+        row.innerHTML =
+          '<div class="cinfo"><div class="cname">'+ch.name+'</div><div class="ccoord">'+coordHtml+'</div></div>' +
+          '<div class="cprog"><div class="bar"><div class="f" id="bar-'+ch.slug+'" style="width:0%"></div></div></div>' +
+          '<div class="ccount"><span id="count-'+ch.slug+'">--</span><span class="amt" id="amt-'+ch.slug+'"></span></div>';
+        div.appendChild(row);
+      });
+      wrap.appendChild(div);
+    });
+  }
+  renderSkeleton();
+
+  function loadProgress(){
+    const url = CONCLAVE_CONFIG.appsScriptUrl;
+    const note = document.getElementById('liveNote');
+
+    if(!url || url.indexOf('PASTE_APPS_SCRIPT') !== -1){
+      note.textContent = 'Live backend not connected yet.';
+      return;
+    }
+
+    const cbName = 'coordCb_' + Date.now();
+    window[cbName] = function(data){
+      const chapters = data.chapters || [];
+      const byName = {};
+      chapters.forEach(c => { byName[(c.name||'').toLowerCase()] = c; });
+
+      // Also index by slug in case names differ in casing
+      const bySlug = {};
+      chapters.forEach(c => { bySlug[(c.slug||'').toLowerCase()] = c; });
+
+      const maxCount = Math.max(1, ...chapters.map(c=>c.count||0));
+
+      TEAMS.forEach(team=>{
+        let teamCount = 0;
+        team.chapters.forEach(ch=>{
+          const match = bySlug[ch.slug] || byName[ch.name.toLowerCase()];
+          const count = match ? (match.count||0) : 0;
+          const amount = match ? (match.amount||0) : 0;
+          teamCount += count;
+
+          const countEl = document.getElementById('count-'+ch.slug);
+          const amtEl = document.getElementById('amt-'+ch.slug);
+          const barEl = document.getElementById('bar-'+ch.slug);
+          if(countEl) countEl.textContent = count;
+          if(amtEl) amtEl.textContent = '₹' + amount.toLocaleString('en-IN');
+          if(barEl) barEl.style.width = Math.round((count/maxCount)*100) + '%';
+        });
+        const totalEl = document.getElementById('total-'+team.key);
+        if(totalEl) totalEl.textContent = teamCount;
+      });
+
+      // Head-to-head bar
+      const bTotal = parseInt(document.getElementById('total-bhavesh').textContent) || 0;
+      const sTotal = parseInt(document.getElementById('total-sunil').textContent) || 0;
+      const h2hMax = Math.max(1, bTotal, sTotal);
+      document.getElementById('h2h-bhavesh').style.width = Math.max(6, Math.round((bTotal/h2hMax)*100)) + '%';
+      document.getElementById('h2h-sunil').style.width = Math.max(6, Math.round((sTotal/h2hMax)*100)) + '%';
+      document.getElementById('h2h-bhavesh-val').textContent = bTotal;
+      document.getElementById('h2h-sunil-val').textContent = sTotal;
+
+      note.innerHTML = '';
+      const dot = document.createElement('span'); dot.className = 'liveDot';
+      note.appendChild(dot);
+      note.appendChild(document.createTextNode('Live — refreshes every 30 seconds. Last updated ' + (data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('en-IN') : new Date().toLocaleTimeString('en-IN'))));
+      delete window[cbName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = url + '?action=summary&callback=' + cbName;
+    script.onerror = function(){
+      note.textContent = 'Could not reach the live sheet — retrying in 30 seconds.';
+    };
+    document.body.appendChild(script);
+  }
+
+  loadProgress();
+  setInterval(loadProgress, 30000);
+</script>
+</body>
+</html>
