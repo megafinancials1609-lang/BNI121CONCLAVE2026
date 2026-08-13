@@ -288,7 +288,7 @@
       note.innerHTML = '';
       const dot = document.createElement('span'); dot.className = 'liveDot';
       note.appendChild(dot);
-      note.appendChild(document.createTextNode('Live — refreshes every 30 seconds. Last updated ' + (data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('en-IN') : new Date().toLocaleTimeString('en-IN'))));
+      note.appendChild(document.createTextNode('Live — refreshes every 5 seconds. Last updated ' + (data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('en-IN') : new Date().toLocaleTimeString('en-IN'))));
       delete window[cbName];
       script.remove();
     };
