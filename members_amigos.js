@@ -82,4 +82,6 @@ const MEMBERS = [
   "Yogen Agrawal",
   "Kapil Makhija",
   "nikhil Wadhwani",
+  "Siddharth Jain",
+  "Sayyed Tassaber Ali",
 ];
