@@ -12,12 +12,12 @@ const CONCLAVE_CONFIG = {
   tagline: "Empowering Your Business Expansion",
   eventDateISO: "2026-08-22T07:00:00+05:30",   // 22 Aug 2026, 7:00 AM IST
   eventEndISO:  "2026-08-22T13:00:00+05:30",   // 1:00 PM IST
-  venue: "Venue To Be Announced",
+  venue: "Babylon International",
 
   // Google Sheet backend (Apps Script Web App).
   // PASTE the deployed /exec URL here once you've published the script.
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbyd3ekIhn7l3HyEqgPPnAJn2kx_W_qOHWEhFr6UqFSEy74vAZ6mpMk7KMtD-b1Od5rn/exec",
-   
+
   // Google Sheet this data is stored in (for reference / manual checks)
   googleSheetId: "1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4",
   googleSheetUrl: "https://docs.google.com/spreadsheets/d/1gXqcueDV2FiqFSHHYGqShswoOV_kZxmpQrwLlol-Kj4/edit",
