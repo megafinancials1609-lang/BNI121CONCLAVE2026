@@ -91,7 +91,7 @@
   // MEMBERS comes from members_experts.js — an array of strings (names).
   // Members only for this event — no family/kids registration.
   const state = (typeof MEMBERS !== 'undefined' ? MEMBERS : []).map(name => ({
-    name, status: 'Pending'
+    name, status: 'Pending', amount: 0
   }));
 
   function activeTier(){
@@ -104,8 +104,10 @@
   }
 
   function memberAmount(m){
-    const tier = activeTier();
-    return m.status === 'Paid' ? tier.amount : 0;
+    // Amount is locked in at the moment a member is marked Paid (see the
+    // status toggle handler below), so a later pricing-tier change never
+    // silently re-prices someone who already registered at the old rate.
+    return m.status === 'Paid' ? (m.amount || 0) : 0;
   }
 
   function renderAlert(){
@@ -166,7 +168,9 @@
       const idx = Number(btn.dataset.idx);
       const action = btn.dataset.action;
       if(action === 'status'){
-        state[idx].status = state[idx].status === 'Pending' ? 'Paid' : 'Pending';
+        const nowPaid = state[idx].status === 'Pending';
+        state[idx].status = nowPaid ? 'Paid' : 'Pending';
+        state[idx].amount = nowPaid ? activeTier().amount : 0;
       }
       renderList(document.getElementById('searchBox').value);
       renderSummary();
@@ -231,6 +235,7 @@
         const m = state.find(x => x.name.trim().toLowerCase() === String(saved.name).trim().toLowerCase());
         if(m){
           m.status = saved.status === 'Paid' ? 'Paid' : 'Pending';
+          m.amount = m.status === 'Paid' ? (Number(saved.amount) || 0) : 0;
         }
       });
       renderList(document.getElementById('searchBox').value);
