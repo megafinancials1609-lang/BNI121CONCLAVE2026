@@ -94,4 +94,5 @@ const MEMBERS = [
   "Amrish Sharma",
   "SANTOSH Kumar Kumhar",
   "Rohit Banjare",
+  "Yash Ranglani",
 ];
