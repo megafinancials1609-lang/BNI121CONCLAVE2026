@@ -129,4 +129,7 @@ const MEMBERS = [
   "RAHUL Agrawal",
   "Soniya Gour",
   "Akash Agrawal",
+    "Yash Agarwal",
+    "Akash Choudhury",
+    "Divya Bajaj",
 ];
