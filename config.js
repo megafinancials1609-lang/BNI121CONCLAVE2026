@@ -77,3 +77,38 @@ function getCurrentTier() {
   }
   return CONCLAVE_CONFIG.pricing[CONCLAVE_CONFIG.pricing.length - 1];
 }
+
+/* ============================================================
+   REGISTRATION LOCK — 21 Aug 2026
+   The ₹900 Late Bird registration is CLOSED. Every chapter
+   coordinator page is now read-only: the Paid/Pending buttons
+   no longer toggle and Save & Sync is disabled, so the figures
+   already in the live sheet are final. Export still works.
+   To reopen, set registrationClosed back to false.
+   ============================================================ */
+CONCLAVE_CONFIG.registrationClosed = true;
+CONCLAVE_CONFIG.closedNotice = "🔒 REGISTRATION CLOSED — ₹900 Late Bird rate has ended. These totals are final.";
+
+(function () {
+  if (!CONCLAVE_CONFIG.registrationClosed) return;
+  function lock() {
+    var list = document.getElementById('memberList'), sync = document.getElementById('syncBtn');
+    if (!list || !sync) return;
+    var notice = CONCLAVE_CONFIG.closedNotice, al = document.getElementById('alertBanner');
+    function setBanner() { if (al && al.textContent !== notice) { al.className = 'alert spot'; al.textContent = notice; } }
+    setBanner();
+    if (al && window.MutationObserver) new MutationObserver(setBanner).observe(al, { childList: true, characterData: true, subtree: true });
+    sync.disabled = true; sync.textContent = 'Registration Closed'; sync.style.opacity = '0.55'; sync.style.cursor = 'not-allowed';
+    document.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest && e.target.closest('[data-action="status"]');
+      if (b) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    function paint() {
+      var b = list.querySelectorAll('[data-action="status"]');
+      for (var i = 0; i < b.length; i++) { b[i].style.cursor = 'default'; b[i].title = 'Registration closed — totals are final'; }
+    }
+    paint();
+    if (window.MutationObserver) new MutationObserver(paint).observe(list, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', lock); else lock();
+})();
