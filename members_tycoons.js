@@ -49,4 +49,5 @@ const MEMBERS = [
   "Ishu Verma",
   "Rahul Sultania",
   "OM LAHRE",
+  "Randeep Chabbra",
 ];
