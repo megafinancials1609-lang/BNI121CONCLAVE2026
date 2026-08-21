@@ -39,4 +39,5 @@ const MEMBERS = [
   "Vijay Malani",
   "Vivek Yadav",
   "Dr Dharmen Bhansali",
+  "Rajesh Singh",
 ];
